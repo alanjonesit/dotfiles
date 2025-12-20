@@ -47,7 +47,7 @@ Restart your terminal or run `exec zsh` to apply changes.
 
 Each app has its own folder (zsh, ghostty, atuin, etc.). The `.stowrc` file tells Stow to create symlinks in `~/.config/`:
 
-```
+```txt
 ~/.config/zsh → ~/dotfiles/zsh
 ~/.config/ghostty → ~/dotfiles/ghostty
 ~/.config/p10k → ~/dotfiles/p10k
