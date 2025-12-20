@@ -32,13 +32,25 @@ Clone this repository to your home directory:
 ```bash
 git clone git@github.com:alanjonesit/dotfiles.git ~/dotfiles
 cd ~/dotfiles
+./setup.sh
 ```
 
-Use stow to symlink configurations:
+The setup script will:
 
-```bash
-# Install all configurations
-stow .
+- Create `~/.zshenv` to point zsh to `~/.config/zsh`
+- Create `~/.hushlogin` to suppress login messages
+- Symlink all config folders to `~/.config/`
+
+Restart your terminal or run `exec zsh` to apply changes.
+
+## How it works
+
+Each app has its own folder (zsh, ghostty, atuin, etc.). The `.stowrc` file tells Stow to create symlinks in `~/.config/`:
+
+```
+~/.config/zsh → ~/dotfiles/zsh
+~/.config/ghostty → ~/dotfiles/ghostty
+~/.config/p10k → ~/dotfiles/p10k
 ```
 
 ## Uninstallation
@@ -46,5 +58,7 @@ stow .
 Remove symlinks:
 
 ```bash
+cd ~/dotfiles
 stow -D .
+rm ~/.zshenv ~/.hushlogin
 ```

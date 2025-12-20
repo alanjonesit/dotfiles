@@ -10,6 +10,10 @@ cat > ~/.zshenv << 'EOF'
 export ZDOTDIR="${XDG_CONFIG_HOME:-$HOME/.config}/zsh"
 EOF
 
+# Create .hushlogin to suppress login message
+echo "Creating ~/.hushlogin..."
+touch ~/.hushlogin
+
 # Stow all configurations
 echo "Stowing configurations to ~/.config..."
 cd "$(dirname "$0")"
