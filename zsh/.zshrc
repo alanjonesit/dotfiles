@@ -14,6 +14,9 @@ export XDG_CONFIG_HOME=~/.config                          # Standard config loca
 export TERM=xterm-256color                                # Proper color support
 export PATH="/opt/homebrew/opt/curl/bin:$PATH"            # Homebrew curl
 
+# zsh-abbr configuration
+export ABBR_USER_ABBREVIATIONS_FILE="${ZDOTDIR:-$HOME/.config/zsh}/zsh-abbr/user-abbreviations"
+
 
 # ============================================================================
 # AUTOLOADS - https://zsh.sourceforge.io/Doc/Release/Zsh-Line-Editor.html
