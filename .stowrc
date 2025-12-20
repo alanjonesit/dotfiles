@@ -1,5 +1,8 @@
 --target=~/.config
---ignore=.git
 --ignore=.DS_Store
---ignore=setup.sh
+--ignore=.git
+--ignore=.gitignore
+--ignore=.stowrc
+--ignore=Brewfile
 --ignore=README.md
+--ignore=setup.sh

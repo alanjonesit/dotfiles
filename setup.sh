@@ -3,6 +3,32 @@
 set -e
 
 echo "Setting up dotfiles..."
+cd "$(dirname "$0")"
+
+# Check for Homebrew and install if needed
+if ! command -v brew &> /dev/null; then
+    echo "Homebrew not found. Installing Homebrew..."
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    
+    # Add Homebrew to PATH for Apple Silicon Macs
+    if [[ $(uname -m) == 'arm64' ]]; then
+        echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
+        eval "$(/opt/homebrew/bin/brew shellenv)"
+    fi
+    echo ""
+fi
+
+# Optional: Install Homebrew packages first
+if [ -f "Brewfile" ]; then
+    echo ""
+    read -p "Install Homebrew packages from Brewfile? (y/N): " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        echo "Installing Homebrew packages..."
+        brew bundle install
+        echo ""
+    fi
+fi
 
 # Create .zshenv in home directory
 echo "Creating ~/.zshenv..."
@@ -16,9 +42,16 @@ touch ~/.hushlogin
 
 # Stow all configurations
 echo "Stowing configurations to ~/.config..."
-cd "$(dirname "$0")"
 stow .
 
+# Install Zim modules
+if [ -f "$HOME/.config/zsh/.zimrc" ]; then
+    echo "Installing Zim framework modules..."
+    zsh -c "source ~/.zshenv && zimfw install"
+    echo ""
+fi
+
+echo ""
 echo "✓ Dotfiles setup complete!"
 echo ""
 echo "Please restart your terminal or run: exec zsh"

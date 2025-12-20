@@ -1,33 +1,12 @@
 # Dotfiles
 
-Personal configuration files managed with [GNU Stow](https://www.gnu.org/software/stow/).
+My personal macOS development environment setup, featuring automated installation, declarative package management with Homebrew, and organized configuration files with GNU Stow.
 
-## Prerequisites
+## Getting Started
 
-### macOS
+### Installation
 
-First, install [Homebrew](https://brew.sh/) if you don't have it:
-
-```bash
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-```
-
-Then install [Git](https://git-scm.com/) and [GNU Stow](https://www.gnu.org/software/stow/):
-
-```bash
-brew install git stow
-```
-
-### Linux (Debian/Ubuntu)
-
-```bash
-sudo apt update
-sudo apt install git stow  # Git and GNU Stow
-```
-
-## Installation
-
-Clone this repository to your home directory:
+Clone this repository to your home directory and run the setup script:
 
 ```bash
 git clone git@github.com:alanjonesit/dotfiles.git ~/dotfiles
@@ -37,28 +16,80 @@ cd ~/dotfiles
 
 The setup script will:
 
+- Install Homebrew (if not already installed)
+- Optionally install all packages from `Brewfile` (includes stow, git, zsh tools, etc.)
 - Create `~/.zshenv` to point zsh to `~/.config/zsh`
 - Create `~/.hushlogin` to suppress login messages
 - Symlink all config folders to `~/.config/`
+- Install Zim framework modules (powerlevel10k, plugins, etc.)
 
 Restart your terminal or run `exec zsh` to apply changes.
 
-## How it works
+> **Works on Linux too!** The setup script and Brewfile are cross-platform compatible.
 
-Each app has its own folder (zsh, ghostty, atuin, etc.). The `.stowrc` file tells Stow to create symlinks in `~/.config/`:
+### What's Included
 
-```txt
-~/.config/zsh → ~/dotfiles/zsh
-~/.config/ghostty → ~/dotfiles/ghostty
-~/.config/p10k → ~/dotfiles/p10k
+- **Package management:** The `Brewfile` declares all CLI tools, GUI applications, and fonts
+
+- **Stow symlinks:** The `.stowrc` file targets `~/.config`, so Stow creates symlinks:
+
+  ```
+  ~/.config/zsh → ~/dotfiles/zsh
+  ~/.config/ghostty → ~/dotfiles/ghostty
+  ~/.config/atuin → ~/dotfiles/atuin
+  ```
+
+- **Zsh configuration:** `~/.zshenv` sets `ZDOTDIR` to move all zsh files to `~/.config/zsh`, keeping your home directory clean.
+
+## Usage
+
+### Managing Packages
+
+The `Brewfile` contains all Homebrew packages, casks, and Mac App Store apps.
+
+**Update Brewfile with current installations:**
+
+```bash
+brew bundle dump --file=~/dotfiles/Brewfile --force
 ```
+
+**Install packages on a new machine:**
+
+```bash
+brew bundle install
+```
+
+### How It Works
+
+Because Stow creates **symlinks**, when you edit `~/.config/zsh/.zshrc`, you're actually editing `~/dotfiles/zsh/.zshrc` directly. Changes are immediately reflected in git - no re-stowing needed!
+
+The Brewfile declares all CLI tools, applications, and fonts, making it easy to replicate your setup on any Mac or Linux machine.
+
+**When to run stow commands:**
+
+- **Adding new config folders:** `stow .` to create new symlinks
+- **Removing config folders:** `stow -D . && stow .` to recreate without removed folders
+- **Editing existing files:** No stow needed - files are already linked!
 
 ## Uninstallation
 
-Remove symlinks:
+To completely remove the dotfiles setup:
 
 ```bash
+# Remove all symlinks
 cd ~/dotfiles
 stow -D .
+
+# Remove created files
 rm ~/.zshenv ~/.hushlogin
+
+# Optional: Remove the repository
+cd ~
+rm -rf ~/dotfiles
+```
+
+Your packages will remain installed. To remove them:
+
+```bash
+brew bundle cleanup --file=~/dotfiles/Brewfile --force
 ```
