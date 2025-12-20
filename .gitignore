@@ -1,0 +1,12 @@
+# History files
+*.zsh_history
+*_history
+.zhistory
+
+# OS files
+.DS_Store
+
+# Atuin database (personal history)
+atuin/*.db
+atuin/*.db-shm
+atuin/*.db-wal
