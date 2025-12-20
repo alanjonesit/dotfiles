@@ -1,0 +1,25 @@
+# ============================================================================
+
+# ZIM MODULE CONFIGURATION - https://zimfw.sh/docs/modules/
+
+# ============================================================================
+
+# Zsh modules from zimfw
+
+zmodule environment # Sets general shell options and defines environment variables
+zmodule input # Applies correct bindkeys for input events
+# zmodule completion # Initializes completion system - MUST be before modules that use compdef
+
+# Prompt theme - use degit for faster installation
+
+zmodule romkatv/powerlevel10k --use degit
+
+# Essential plugins
+
+zmodule zsh-users/zsh-syntax-highlighting # ~+20ms: Visual feedback for commands
+zmodule zsh-users/zsh-autosuggestions # ~+20ms: History-based suggestions
+
+# Extra plugins
+
+zmodule zsh-users/zsh-completions --fpath src # ~+20ms: Extra completion definitions
+zmodule olets/zsh-abbr # ~+12ms: Fish-like abbreviations
