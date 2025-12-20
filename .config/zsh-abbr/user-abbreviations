@@ -1,3 +1,4 @@
+# Git
 abbr "g"="git"
 abbr "ga"="git add"
 abbr "gaa"="git add --all"
@@ -5,6 +6,8 @@ abbr "gbd"="git branch --delete"
 abbr "gcam"="git commit --all --message"
 abbr "gcb"="git checkout -b"
 abbr "gco"="git checkout"
+
+# Terraform
 abbr "tf"="terraform"
 abbr "tfa"="terraform apply"
 abbr "tfa\\!"="terraform apply -auto-approve"
