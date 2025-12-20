@@ -1,0 +1,5 @@
+--target=~/.config
+--ignore=.git
+--ignore=.DS_Store
+--ignore=setup.sh
+--ignore=README.md

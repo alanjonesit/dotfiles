@@ -155,7 +155,7 @@ eval "$(zoxide init zsh)"                             # zoxide: Smart cd - https
 
 # Load Powerlevel10k configuration
 # Run 'p10k configure' to customise your prompt
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+[[ ! -f ~/.config/p10k/.p10k.zsh ]] || source ~/.config/p10k/.p10k.zsh
 
 # ============================================================================
 # ALIASES
@@ -165,10 +165,10 @@ eval "$(zoxide init zsh)"                             # zoxide: Smart cd - https
 alias c="clear"
 
 # Config file shortcuts
-alias zshconfig="code ~/.zshrc"
-alias zimconfig="code ~/.zimrc"
+alias zshconfig="code ~/.config/zsh/.zshrc"
+alias zimconfig="code ~/.config/zsh/.zimrc"
 alias ghosttyconfig="code ~/.config/ghostty/config"
-alias p10kconfig="code ~/.p10k.zsh"
+alias p10kconfig="code ~/.config/p10k/.p10k.zsh"
 
 # Better defaults with modern tools
 alias ls="eza --icons --group-directories-first"
