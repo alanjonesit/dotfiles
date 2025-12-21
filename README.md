@@ -33,7 +33,7 @@ Restart your terminal or run `exec zsh` to apply changes.
 
 - **Stow symlinks:** The `.stowrc` file targets `~/.config`, so Stow creates symlinks:
 
-  ```
+  ```txt
   ~/.config/zsh → ~/dotfiles/zsh
   ~/.config/ghostty → ~/dotfiles/ghostty
   ~/.config/atuin → ~/dotfiles/atuin

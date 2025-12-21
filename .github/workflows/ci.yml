@@ -19,7 +19,8 @@ jobs:
         uses: ludeeus/action-shellcheck@master
         with:
           scandir: "."
-          severity: warning
+          check_together: "yes"
+          ignore_paths: "zsh"
 
   markdown-lint:
     name: Markdown Lint
@@ -29,7 +30,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Markdown Lint
-        uses: DavidAnson/markdownlint-cli2-action@v16
+        uses: DavidAnson/markdownlint-cli2-action@v22
         with:
           globs: "**/*.md"
 
@@ -41,7 +42,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Link Checker
-        uses: lycheeverse/lychee-action@v1
+        uses: lycheeverse/lychee-action@v2
         with:
           args: --verbose --no-progress '**/*.md'
           fail: true
