@@ -29,15 +29,21 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Create markdownlint config
+        run: |
+          cat > .markdownlint-cli2.jsonc << 'EOF'
+          {
+            "config": {
+              "default": true,
+              "MD013": false
+            }
+          }
+          EOF
+
       - name: Markdown Lint
         uses: DavidAnson/markdownlint-cli2-action@v22
         with:
           globs: "**/*.md"
-          config: |
-            {
-              "default": true,
-              "MD013": false
-            }
 
   link-checker:
     name: Link Checker
