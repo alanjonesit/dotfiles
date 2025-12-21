@@ -45,6 +45,16 @@ jobs:
         with:
           globs: "**/*.md"
 
+  prettier:
+    name: Prettier Format Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Check formatting with Prettier
+        run: npx prettier --check .
+
   link-checker:
     name: Link Checker
     runs-on: ubuntu-latest

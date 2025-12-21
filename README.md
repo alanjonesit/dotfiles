@@ -1,6 +1,6 @@
 # Dotfiles
 
-My personal macOS development environment setup, featuring automated installation, declarative package management with Homebrew, and organized configuration files with GNU Stow.
+My personal macOS development environment setup, featuring automated installation, declarative package management with [Homebrew](https://brew.sh/), and organized configuration files with [GNU Stow](https://www.gnu.org/software/stow/).
 
 ## Getting Started
 
@@ -21,7 +21,7 @@ The setup script will:
 - Create `~/.zshenv` to point zsh to `~/.config/zsh`
 - Create `~/.hushlogin` to suppress login messages
 - Symlink all config folders to `~/.config/`
-- Install Zim framework modules (powerlevel10k, plugins, etc.)
+- Install [Zim](https://zimfw.sh/) framework modules ([Powerlevel10k](https://github.com/romkatv/powerlevel10k), plugins, etc.)
 
 Restart your terminal or run `exec zsh` to apply changes.
 
@@ -29,7 +29,7 @@ Restart your terminal or run `exec zsh` to apply changes.
 
 ### What's Included
 
-- **Package management:** The `Brewfile` declares all CLI tools, GUI applications, and fonts
+- **Package management:** The [`Brewfile`](Brewfile) declares all CLI tools, GUI applications, and fonts
 
 - **Stow symlinks:** The `.stowrc` file targets `~/.config`, so Stow creates symlinks:
 
