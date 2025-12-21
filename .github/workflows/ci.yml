@@ -1,0 +1,80 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  shellcheck:
+    name: ShellCheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run ShellCheck
+        uses: ludeeus/action-shellcheck@master
+        with:
+          scandir: "."
+          severity: warning
+
+  markdown-lint:
+    name: Markdown Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Markdown Lint
+        uses: DavidAnson/markdownlint-cli2-action@v16
+        with:
+          globs: "**/*.md"
+
+  link-checker:
+    name: Link Checker
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Link Checker
+        uses: lycheeverse/lychee-action@v1
+        with:
+          args: --verbose --no-progress '**/*.md'
+          fail: true
+
+  brewfile-check:
+    name: Brewfile Validation
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate Brewfile
+        run: brew bundle check --file=Brewfile --verbose || true
+
+      - name: Check Brewfile syntax
+        run: |
+          if ! brew bundle list --file=Brewfile > /dev/null 2>&1; then
+            echo "❌ Brewfile syntax error"
+            exit 1
+          fi
+          echo "✅ Brewfile syntax is valid"
+
+  stow-check:
+    name: Stow Configuration Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install GNU Stow
+        run: sudo apt-get update && sudo apt-get install -y stow
+
+      - name: Test stow dry run
+        run: |
+          mkdir -p ~/.config
+          stow --simulate --verbose --target=$HOME/.config --dir=$PWD --ignore='.git' --ignore='.DS_Store' --ignore='setup.sh' --ignore='README.md' --ignore='Brewfile' --ignore='.gitignore' --ignore='.stowrc' */
