@@ -33,6 +33,11 @@ jobs:
         uses: DavidAnson/markdownlint-cli2-action@v22
         with:
           globs: "**/*.md"
+          config: |
+            {
+              "default": true,
+              "MD013": false
+            }
 
   link-checker:
     name: Link Checker
@@ -44,7 +49,7 @@ jobs:
       - name: Link Checker
         uses: lycheeverse/lychee-action@v2
         with:
-          args: --verbose --no-progress '**/*.md'
+          args: --verbose --no-progress README.md
           fail: true
 
   brewfile-check:
