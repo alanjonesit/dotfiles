@@ -13,7 +13,7 @@ brew "curl"                    # HTTP client
 brew "docker"                  # Container platform CLI
 brew "eza"                     # Modern ls replacement
 brew "fzf"                     # Fuzzy finder
-brew "git-filter-repo"          # Git history rewriting tool
+brew "git-filter-repo"         # Git history rewriting tool
 brew "ripgrep"                 # Fast recursive grep
 brew "shellcheck"              # Shell script linter
 brew "stow"                    # Symlink farm manager
@@ -26,7 +26,7 @@ brew "hashicorp/tap/terraform" # Infrastructure as code
 cask "appcleaner"              # App uninstaller
 cask "bettermouse"             # Mouse customization
 cask "brave-browser"           # Privacy-focused browser
-cask "flux-app"                 # Screen color temperature adjuster
+cask "flux-app"                # Screen color temperature adjuster
 cask "font-jetbrains-mono"     # Monospace font for coding
 cask "fuse-t"                  # File system in user space
 cask "ghostty"                 # Fast GPU-accelerated terminal
