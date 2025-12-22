@@ -83,6 +83,9 @@ stow -D .
 # Remove created files
 rm ~/.zshenv ~/.hushlogin
 
+# Remove Zim framework installation
+rm -rf ~/.config/zsh/.zim
+
 # Optional: Remove the repository
 cd ~
 rm -rf ~/dotfiles
@@ -92,4 +95,11 @@ Your packages will remain installed. To remove them:
 
 ```bash
 brew bundle cleanup --file=~/dotfiles/Brewfile --force
+```
+
+Optionally, remove now-empty config directories if not used by other apps:
+
+```bash
+find ~/.config -type l -exec test ! -e {} \; -delete
+find ~/.config -type d -empty -delete
 ```

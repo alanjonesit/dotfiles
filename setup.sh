@@ -45,14 +45,13 @@ touch ~/.hushlogin
 echo "Stowing configurations to ~/.config..."
 stow .
 
-# Install Zim modules
-if [ -f "$HOME/.config/zsh/.zimrc" ]; then
-    echo "Installing Zim framework modules..."
-    zsh -c "source ~/.zshenv && zimfw install"
-    echo ""
-fi
+# Install Zim framework modules
+echo "Installing Zim framework modules..."
+zsh -c "source ~/.zshenv && ZIM_HOME=\${ZDOTDIR:-\${HOME}}/.zim source /opt/homebrew/opt/zimfw/share/zimfw.zsh install"
+echo ""
 
 echo ""
 echo "✓ Dotfiles setup complete!"
+echo "Restarting shell..."
 echo ""
-echo "Please restart your terminal or run: exec zsh"
+exec zsh
