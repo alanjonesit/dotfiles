@@ -14,6 +14,7 @@ brew "docker"                  # Container platform CLI
 brew "eza"                     # Modern ls replacement
 brew "fzf"                     # Fuzzy finder
 brew "git-filter-repo"         # Git history rewriting tool
+brew "pinentry-mac"            # GPG passphrase entry for macOS
 brew "ripgrep"                 # Fast recursive grep
 brew "shellcheck"              # Shell script linter
 brew "stow"                    # Symlink farm manager

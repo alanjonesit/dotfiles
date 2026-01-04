@@ -28,6 +28,11 @@ if [ -f "Brewfile" ]; then
         echo "Installing Homebrew packages..."
         brew bundle install
         echo ""
+
+        # Configure brew autoupdate
+        echo "Configuring brew autoupdate..."
+        brew autoupdate start 43200 --upgrade --cleanup --immediate --sudo
+        echo ""
     fi
 fi
 
