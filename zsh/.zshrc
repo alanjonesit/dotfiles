@@ -13,6 +13,7 @@ export GPG_TTY=$(tty)                                     # For GPG commit signi
 export XDG_CONFIG_HOME=~/.config                          # Standard config location
 export TERM=xterm-256color                                # Proper color support
 export PATH="/opt/homebrew/opt/curl/bin:$PATH"            # Homebrew curl
+export TERMINAL="ghostty"                                 # Set Ghostty as default terminal
 
 # zsh-abbr configuration
 export ABBR_USER_ABBREVIATIONS_FILE="${ZDOTDIR:-$HOME/.config/zsh}/zsh-abbr/user-abbreviations"

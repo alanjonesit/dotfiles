@@ -13,3 +13,5 @@
 atuin/*.db
 atuin/*.db-shm
 atuin/*.db-wal
+
+zsh/.zsh_sessions/

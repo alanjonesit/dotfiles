@@ -16,10 +16,11 @@ zmodule romkatv/powerlevel10k --use degit
 
 # Essential plugins
 
-zmodule zsh-users/zsh-syntax-highlighting # ~+20ms: Visual feedback for commands
-zmodule zsh-users/zsh-autosuggestions # ~+20ms: History-based suggestions
+zmodule zsh-users/zsh-syntax-highlighting # Visual feedback for commands
+zmodule zsh-users/zsh-autosuggestions # History-based suggestions
 
 # Extra plugins
 
-zmodule zsh-users/zsh-completions --fpath src # ~+20ms: Extra completion definitions
-zmodule olets/zsh-abbr # ~+12ms: Fish-like abbreviations
+zmodule zsh-users/zsh-completions --fpath src # Extra completion definitions
+zmodule olets/zsh-abbr # Fish-like abbreviations
+zmodule MichaelAquilina/zsh-auto-notify --source auto-notify.plugin.zsh # Notify when long-running commands complete
