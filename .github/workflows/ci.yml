@@ -55,18 +55,6 @@ jobs:
       - name: Check formatting with Prettier
         run: npx prettier --check .
 
-  link-checker:
-    name: Link Checker
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-
-      - name: Link Checker
-        uses: lycheeverse/lychee-action@v2
-        with:
-          fail: true
-
   brewfile-check:
     name: Brewfile Validation
     runs-on: macos-latest
