@@ -46,7 +46,7 @@ jobs:
           globs: "**/*.md"
 
   prettier:
-    name: Prettier Format Check
+    name: Prettier
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -55,8 +55,8 @@ jobs:
       - name: Check formatting with Prettier
         run: npx prettier --check .
 
-  brewfile-check:
-    name: Brewfile Validation
+  brewfile:
+    name: Brewfile
     runs-on: macos-latest
     steps:
       - name: Checkout code
@@ -73,8 +73,8 @@ jobs:
           fi
           echo "✅ Brewfile syntax is valid"
 
-  stow-check:
-    name: Stow Configuration Check
+  stow:
+    name: Stow
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
