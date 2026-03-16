@@ -36,6 +36,27 @@ if [ -f "Brewfile" ]; then
     fi
 fi
 
+# Install DeskRest
+echo "Installing DeskRest..."
+DESKREST_DMG="/tmp/DeskRest.dmg"
+# Get latest release download URL from GitHub API
+DESKREST_URL=$(curl -s https://api.github.com/repos/Marceeelll/DeskRest-releases/releases/latest | grep -o '"browser_download_url": "[^"]*\.dmg"' | cut -d'"' -f4 | head -1)
+if [ -n "$DESKREST_URL" ]; then
+    curl -L "$DESKREST_URL" -o "$DESKREST_DMG" 2>/dev/null
+    if [ -f "$DESKREST_DMG" ]; then
+        hdiutil attach "$DESKREST_DMG" -nobrowse -quiet
+        cp -r /Volumes/DeskRest/DeskRest.app /Applications/ 2>/dev/null || true
+        hdiutil detach /Volumes/DeskRest -quiet
+        rm -f "$DESKREST_DMG"
+        echo "✓ DeskRest installed"
+    else
+        echo "⚠ Failed to download DeskRest. Skipping."
+    fi
+else
+    echo "⚠ Could not find DeskRest download link. Skipping."
+fi
+echo ""
+
 # Create .zshenv in home directory
 echo "Creating ~/.zshenv..."
 cat > ~/.zshenv << 'EOF'
@@ -45,6 +66,9 @@ EOF
 # Create .hushlogin to suppress login message
 echo "Creating ~/.hushlogin..."
 touch ~/.hushlogin
+
+# Ensure ~/.config directory exists
+mkdir -p ~/.config
 
 # Stow all configurations
 echo "Stowing configurations to ~/.config..."
@@ -57,6 +81,15 @@ echo ""
 
 echo ""
 echo "✓ Dotfiles setup complete!"
+echo ""
+echo "⚠ You'll need to do the following manually:"
+echo "- Configure Mac system settings"
+echo " - Sign in to Visual Studio Code"
+echo " - Add license keys to:"
+echo "     - Shottr"
+echo "     - DeskRest"
+echo "     - BetterMouse"
+echo ""
 echo "Restarting shell..."
 echo ""
 exec zsh

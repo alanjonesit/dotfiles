@@ -9,7 +9,7 @@ My personal macOS development environment setup, featuring automated installatio
 Clone this repository to your home directory and run the setup script:
 
 ```bash
-git clone git@github.com:alanjonesit/dotfiles.git ~/dotfiles
+git clone https://github.com/alanjonesit/dotfiles.git ~/dotfiles
 cd ~/dotfiles
 ./setup.sh
 ```
@@ -18,6 +18,8 @@ The setup script will:
 
 - Install Homebrew (if not already installed)
 - Optionally install all packages from `Brewfile` (includes stow, git, zsh tools, etc.)
+- Download and install [DeskRest](https://deskrest.com/) (break reminder app) - not available by Homebrew.
+- Create `~/.config/` directory
 - Create `~/.zshenv` to point zsh to `~/.config/zsh`
 - Create `~/.hushlogin` to suppress login messages
 - Symlink all config folders to `~/.config/`
@@ -26,6 +28,17 @@ The setup script will:
 Restart your terminal or run `exec zsh` to apply changes.
 
 > **Works on Linux too!** The setup script and Brewfile are cross-platform compatible.
+
+### Post-Setup Configuration
+
+After running the setup script, you'll need to do the following manually:
+
+- Configure Mac system settings
+- Sign in to Visual Studio Code
+- Add license keys to:
+  - **BetterMouse**
+  - **DeskRest**
+  - **Shottr**
 
 ### What's Included
 
