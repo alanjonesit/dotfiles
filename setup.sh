@@ -79,6 +79,33 @@ echo "Installing Zim framework modules..."
 zsh -c "source ~/.zshenv && ZIM_HOME=\${ZDOTDIR:-\${HOME}}/.zim source /opt/homebrew/opt/zimfw/share/zimfw.zsh install"
 echo ""
 
+# Git configuration
+echo "Git configuration"
+echo "-----------------"
+
+read -rp "Enter your git name: " git_name
+while [[ -z "$git_name" ]]; do
+    echo "  ✗ Name cannot be empty."
+    read -rp "Enter your git name: " git_name
+done
+
+while true; do
+    read -rp "Enter your git email address: " git_email
+    if [[ "$git_email" == *"@"*"."* ]]; then
+        break
+    else
+        echo "  ✗ That doesn't look like a valid email, try again."
+    fi
+done
+
+git config --global user.name "$git_name"
+git config --global user.email "$git_email"
+echo ""
+echo "Git identity:"
+echo "  Name:  $(git config --global user.name)"
+echo "  Email: $(git config --global user.email)"
+echo ""
+
 echo ""
 echo "✓ Dotfiles setup complete!"
 echo ""
