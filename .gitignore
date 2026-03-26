@@ -15,3 +15,6 @@ atuin/*.db-shm
 atuin/*.db-wal
 
 zsh/.zsh_sessions/
+
+# Local configuration files
+.zshrc.local
