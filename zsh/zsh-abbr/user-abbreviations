@@ -6,6 +6,11 @@ abbr "gbd"="git branch --delete"
 abbr "gcam"="git commit --all --message"
 abbr "gcb"="git checkout -b"
 abbr "gco"="git checkout"
+abbr "gp"="git push"
+abbr "gs"="git status"
+abbr "gci"="git commit --allow-empty -m 'ci: trigger pipeline' && git push"
+abbr "gcl"="git clone"
+
 
 # Terraform
 abbr "tf"="terraform"
@@ -31,6 +36,12 @@ abbr "tfv"="terraform validate"
 abbr "tfw"="terraform workspace"
 abbr "tfwl"="terraform workspace list"
 abbr "tfws"="terraform workspace select"
+
+# tfbackend
+abbr "tfb"="tfbackend"
+
+# aws-sso-util
+abbr "awsl"="aws-sso-util login"
 
 # Kubernetes
 abbr "k"="kubectl"
