@@ -1,0 +1,54 @@
+#!/bin/bash
+
+# --- gitleaks ---
+if command -v gitleaks &>/dev/null; then
+    gitleaks protect --staged --redact --no-banner
+else
+    echo "warning: gitleaks not installed, skipping secrets check (install with: brew install gitleaks)"
+fi
+
+# --- tofu fmt / validate ---
+if command -v tofu &>/dev/null && ls -- *.tf &>/dev/null 2>&1; then
+    tofu fmt --recursive .
+    if ! git diff --exit-code --quiet; then
+        echo "tofu fmt: Formatting updated. Stage the changes and recommit."
+        exit 1
+    fi
+    tofu validate .
+else
+    echo "warning: tofu not installed, skipping fmt/validate (install with: brew install opentofu)"
+fi
+
+# --- tfupdate ---
+if command -v tfupdate &>/dev/null && ls -- *.tf &>/dev/null 2>&1; then
+    tfupdate terraform --recursive .
+    tfupdate provider aws --recursive .
+    if ! git diff --exit-code --quiet; then
+        echo "tfupdate: Terraform/provider version constraints updated. Stage the changes and recommit."
+        exit 1
+    fi
+else
+    echo "warning: tfupdate not installed, skipping Terraform version check (install with: brew install tfupdate)"
+fi
+
+# --- tflint ---
+if command -v tflint &>/dev/null && ls -- *.tf &>/dev/null 2>&1; then
+    tflint --recursive || echo "warning: tflint found issues (see above)"
+else
+    echo "warning: tflint not installed, skipping lint (install with: brew install tflint)"
+fi
+
+# --- terraform-docs ---
+if command -v terraform-docs &>/dev/null && ls -- *.tf &>/dev/null 2>&1; then
+    find . -name README.md | while read -r readme; do
+        if grep -q "<!-- BEGIN_TF_DOCS -->" "$readme"; then
+            terraform-docs --output-mode=inject --output-file="$readme" md "$(dirname "$readme")" > /dev/null
+        fi
+    done
+    if ! git diff --exit-code --quiet; then
+        echo "terraform-docs: Documentation updated. Stage the changes and recommit."
+        exit 1
+    fi
+else
+    echo "warning: terraform-docs not installed, skipping docs update (install with: brew install terraform-docs)"
+fi

@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# --- conventional commits ---
+# Enforces: type(scope): description
+# Types: feat, fix, docs, style, refactor, perf, test, chore, ci, build, revert
+
+commit_msg=$(cat "$1")
+pattern='^(feat|fix|docs|style|refactor|perf|test|chore|ci|build|revert)(\(.+\))?(!)?: .+'
+
+if ! echo "$commit_msg" | grep -qE "$pattern"; then
+    echo "error: commit message does not follow conventional commits format."
+    echo "expected: type(scope): description"
+    echo "types: feat, fix, docs, style, refactor, perf, test, chore, ci, build, revert"
+    echo "example: feat(auth): add login page"
+    exit 1
+fi
