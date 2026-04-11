@@ -76,6 +76,7 @@ done
 
 git config --global user.name "$git_name"
 git config --global user.email "$git_email"
+git config --global core.hooksPath ~/.config/git/hooks
 echo ""
 echo "Git identity:"
 echo "  Name:  $(git config --global user.name)"
