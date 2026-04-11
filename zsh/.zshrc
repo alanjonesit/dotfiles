@@ -12,11 +12,16 @@ fi
 export GPG_TTY=$(tty)                                            # For GPG commit signing
 export XDG_CONFIG_HOME=~/.config                                 # Standard config location
 export TERM=xterm-256color                                       # Proper color support
-export PATH="/opt/homebrew/opt/curl/bin:$HOME/.local/bin:$PATH"  # Homebrew curl & local bin
+export PATH="/opt/homebrew/bin:/opt/homebrew/opt/curl/bin:$HOME/.local/bin:$PATH"  # Homebrew bin, curl & local bin
 export TERMINAL="ghostty"                                        # Set Ghostty as default terminal
 
 # zsh-abbr configuration
 export ABBR_USER_ABBREVIATIONS_FILE="${ZDOTDIR:-$HOME/.config/zsh}/zsh-abbr/user-abbreviations"
+## https://zsh-abbr.olets.dev/history.html#save-lines-with-abbreviations-to-history
+ABBR_EXPAND_AND_ACCEPT_PUSH_ABBREVIATED_LINE_TO_HISTORY=1
+## https://zsh-abbr.olets.dev/reminders.html
+ABBR_GET_AVAILABLE_ABBREVIATION=1
+ABBR_LOG_AVAILABLE_ABBREVIATION=1
 
 
 # ============================================================================
@@ -98,6 +103,15 @@ if [[ ! ${ZIM_HOME}/init.zsh -nt ${ZDOTDIR:-${HOME}}/.zimrc ]]; then
   source /opt/homebrew/opt/zimfw/share/zimfw.zsh init -q
 fi
 
+# Auto-update zimfw modules every 7 days
+() {
+  local last_update=${ZIM_HOME}/.last_update
+  local days=7
+  if [[ ! -f $last_update ]] || [[ $(( ($(date +%s) - $(date -r $last_update +%s)) / 86400 )) -ge $days ]]; then
+    source /opt/homebrew/opt/zimfw/share/zimfw.zsh update -q && touch $last_update
+  fi
+}
+
 # Initialize modules
 source ${ZIM_HOME}/init.zsh
 
@@ -142,6 +156,19 @@ awsp() {
   export AWS_PROFILE=$(aws configure list-profiles | fzf --height 40% --prompt "AWS Profile: ")
 }
 
+# AWS console opener - opens the AWS console for the current AWS_PROFILE
+awscon() {
+  local profile=${AWS_PROFILE}
+  if [[ -z "$profile" ]]; then
+    echo "AWS_PROFILE is not set. Run 'awsp' to select a profile."
+    return 1
+  fi
+  local account_id=$(aws sts get-caller-identity --query Account --output text)
+  local role_name=$(aws sts get-caller-identity --query 'Arn' --output text | sed 's|.*AWSReservedSSO_\([^_]*\)_.*|\1|')
+  local start_url=$(grep -A5 '\[sso-session' ~/.aws/config | grep sso_start_url | awk -F' = ' '{print $2}' | tr -d '[:space:]')
+  open "${start_url%/}#/console?account_id=${account_id}&role_name=${role_name}"
+}
+
 # ============================================================================
 # EXTERNAL TOOL INTEGRATIONS
 # ============================================================================
@@ -160,8 +187,11 @@ eval "$(zoxide init zsh)"                             # zoxide: Smart cd - https
 [[ "$TERM_PROGRAM" == "vscode" ]] && . "$(code --locate-shell-integration-path zsh)"
 
 # Load Powerlevel10k configuration
-# Run 'p10k configure' to customise your prompt
-[[ ! -f ~/.config/zsh/p10k/.p10k.zsh ]] || source ~/.config/zsh/p10k/.p10k.zsh
+# Upstream lean template is sourced first, then local overrides are applied on top.
+# This way zimfw updates to powerlevel10k are picked up automatically.
+# Edit ~/.config/zsh/p10k/p10k-overrides.zsh to customise your prompt.
+source ${ZIM_HOME}/modules/powerlevel10k/config/p10k-lean.zsh
+[[ ! -f ~/.config/zsh/p10k/p10k-overrides.zsh ]] || source ~/.config/zsh/p10k/p10k-overrides.zsh
 
 # Local overrides - not synced to dotfiles (personal vars, secrets, etc.)
 [[ -f ~/.config/zsh/.zshrc.local ]] && source ~/.config/zsh/.zshrc.local
@@ -179,7 +209,11 @@ alias zshconfiglocal="code ~/.config/zsh/.zshrc.local"
 alias zimconfig="code ~/.config/zsh/.zimrc"
 alias ghosttyconfig="code ~/.config/ghostty/config"
 alias awsconfig="code ~/.aws/config"
-alias p10kconfig="code ~/.config/zsh/p10k/.p10k.zsh"
+alias p10kconfig="code ${ZIM_HOME}/modules/powerlevel10k/config/p10k-lean.zsh"
+alias p10koverrides="code ~/.config/zsh/p10k/p10k-overrides.zsh"
+alias gitconfig="code ~/.gitconfig"
+alias githooksconfig="code ~/.config/git/hooks"
+alias abbrconfig="code ~/.config/zsh/zsh-abbr/user-abbreviations"
 
 # Better defaults with modern tools
 alias ls="eza --icons --group-directories-first"
@@ -189,6 +223,8 @@ alias cd="z"
 
 # Python
 alias python=python3
+
+export PATH=$PATH:/opt/homebrew/Cellar/openvpn/2.7.0/sbin
 
 
 # ============================================================================
