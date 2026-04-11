@@ -137,6 +137,11 @@ unset match_specifications
 zstyle ':completion:*' menu select              # Show completion menu
 zstyle ':completion::complete:*' use-cache yes  # Enable completion caching
 
+# AWS profile switcher - run 'awsp' to fuzzy search and select a profile
+awsp() {
+  export AWS_PROFILE=$(aws configure list-profiles | fzf --height 40% --prompt "AWS Profile: ")
+}
+
 # ============================================================================
 # EXTERNAL TOOL INTEGRATIONS
 # ============================================================================
@@ -158,6 +163,9 @@ eval "$(zoxide init zsh)"                             # zoxide: Smart cd - https
 # Run 'p10k configure' to customise your prompt
 [[ ! -f ~/.config/zsh/p10k/.p10k.zsh ]] || source ~/.config/zsh/p10k/.p10k.zsh
 
+# Local overrides - not synced to dotfiles (personal vars, secrets, etc.)
+[[ -f ~/.config/zsh/.zshrc.local ]] && source ~/.config/zsh/.zshrc.local
+
 # ============================================================================
 # ALIASES
 # ============================================================================
@@ -167,8 +175,10 @@ alias c="clear"
 
 # Config file shortcuts
 alias zshconfig="code ~/.config/zsh/.zshrc"
+alias zshconfiglocal="code ~/.config/zsh/.zshrc.local"
 alias zimconfig="code ~/.config/zsh/.zimrc"
 alias ghosttyconfig="code ~/.config/ghostty/config"
+alias awsconfig="code ~/.aws/config"
 alias p10kconfig="code ~/.config/zsh/p10k/.p10k.zsh"
 
 # Better defaults with modern tools
