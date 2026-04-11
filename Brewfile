@@ -23,20 +23,23 @@ brew "zimfw"                   # Zsh configuration framework
 brew "zoxide"                  # Smarter cd command
 brew "hashicorp/tap/terraform" # Infrastructure as code
 
+# Fonts
+cask "font-jetbrains-mono"           # Monospace font for coding
+cask "font-jetbrains-mono-nerd-font" # Nerd Font version of JetBrains Mono
+
 # Applications
-cask "appcleaner"              # App uninstaller
-cask "bettermouse"             # Mouse customization
-cask "brave-browser"           # Privacy-focused browser
-cask "flux-app"                # Screen color temperature adjuster
-cask "font-jetbrains-mono"     # Monospace font for coding
-cask "fuse-t"                  # File system in user space
-cask "ghostty"                 # Fast GPU-accelerated terminal
-cask "muzzle"                  # Silence notifications during screen sharing
-cask "pgadmin4"                # PostgreSQL admin tool
-cask "raycast"                 # Spotlight replacement
-cask "rectangle"               # Window management
-cask "shottr"                  # Screenshot tool
-cask "spotify"                 # Music streaming
-cask "veracrypt-fuse-t"        # Disk encryption
-cask "visual-studio-code"      # Code editor
-cask "zoom"                    # Video conferencing
+cask "appcleaner"         # App uninstaller
+cask "bettermouse"        # Mouse customization
+cask "brave-browser"      # Privacy-focused browser
+cask "flux-app"           # Screen color temperature adjuster
+cask "fuse-t"             # File system in user space
+cask "ghostty"            # Fast GPU-accelerated terminal
+cask "muzzle"             # Silence notifications during screen sharing
+cask "pgadmin4"           # PostgreSQL admin tool
+cask "raycast"            # Spotlight replacement
+cask "rectangle"          # Window management
+cask "shottr"             # Screenshot tool
+cask "spotify"            # Music streaming
+cask "veracrypt-fuse-t"   # Disk encryption
+cask "visual-studio-code" # Code editor
+cask "zoom"               # Video conferencing

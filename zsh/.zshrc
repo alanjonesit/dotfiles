@@ -9,11 +9,11 @@ fi
 # ENVIRONMENT VARIABLES - https://zsh.sourceforge.io/Guide/zshguide02.html
 # ============================================================================
 
-export GPG_TTY=$(tty)                                     # For GPG commit signing
-export XDG_CONFIG_HOME=~/.config                          # Standard config location
-export TERM=xterm-256color                                # Proper color support
-export PATH="/opt/homebrew/opt/curl/bin:$PATH"            # Homebrew curl
-export TERMINAL="ghostty"                                 # Set Ghostty as default terminal
+export GPG_TTY=$(tty)                                            # For GPG commit signing
+export XDG_CONFIG_HOME=~/.config                                 # Standard config location
+export TERM=xterm-256color                                       # Proper color support
+export PATH="/opt/homebrew/opt/curl/bin:$HOME/.local/bin:$PATH"  # Homebrew curl & local bin
+export TERMINAL="ghostty"                                        # Set Ghostty as default terminal
 
 # zsh-abbr configuration
 export ABBR_USER_ABBREVIATIONS_FILE="${ZDOTDIR:-$HOME/.config/zsh}/zsh-abbr/user-abbreviations"
@@ -105,6 +105,9 @@ source ${ZIM_HOME}/init.zsh
 # COMPLETION INITIALIZATION
 # ============================================================================
 # Initialize completion system manually (instead of using zim's completion module)
+
+# Docker Desktop completions
+fpath=($HOME/.docker/completions $fpath)
 
 autoload -Uz compinit
 compinit -d "${XDG_CACHE_HOME:-$HOME/.cache}/zsh/.zcompdump"

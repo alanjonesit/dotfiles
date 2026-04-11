@@ -6,3 +6,8 @@ title = " "
 
 # https://ghostty.org/docs/config/reference#macos-titlebar-style
 macos-titlebar-style = tabs
+
+# https://ghostty.org/docs/config/reference#notify-on-command-finish
+notify-on-command-finish = always
+notify-on-command-finish-action = bell,notify
+notify-on-command-finish-after = 10s

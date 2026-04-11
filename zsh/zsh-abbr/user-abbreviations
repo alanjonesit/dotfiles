@@ -31,3 +31,9 @@ abbr "tfv"="terraform validate"
 abbr "tfw"="terraform workspace"
 abbr "tfwl"="terraform workspace list"
 abbr "tfws"="terraform workspace select"
+
+# Kubernetes
+abbr "k"="kubectl"
+abbr "kg"="kubectl get"
+abbr "kgp"="kubectl get pods"
+abbr "kgd"="kubectl get deployments"
