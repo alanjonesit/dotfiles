@@ -49,3 +49,6 @@ typeset -g POWERLEVEL9K_TIME_VISUAL_IDENTIFIER_EXPANSION=
 
 # Always show transient prompt.
 typeset -g POWERLEVEL9K_TRANSIENT_PROMPT=always
+
+# Show kubecontext alias followed by the cluster name (e.g. staging:my-cluster)
+typeset -g POWERLEVEL9K_KUBECONTEXT_DEFAULT_CONTENT_EXPANSION='${P9K_KUBECONTEXT_NAME}:${P9K_KUBECONTEXT_CLOUD_CLUSTER}'

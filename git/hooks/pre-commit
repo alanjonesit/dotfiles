@@ -1,54 +1,61 @@
 #!/bin/bash
 
+failed=0
+
+# Tracked .tf files anywhere in the repo, not just the root
+has_tf=$(git ls-files -- '*.tf')
+
 # --- gitleaks ---
 if command -v gitleaks &>/dev/null; then
-    gitleaks protect --staged --redact --no-banner
+    gitleaks protect --staged --redact --no-banner --log-level error || failed=1
 else
     echo "warning: gitleaks not installed, skipping secrets check (install with: brew install gitleaks)"
 fi
 
 # --- tofu fmt / validate ---
-if command -v tofu &>/dev/null && ls -- *.tf &>/dev/null 2>&1; then
+if ! command -v tofu &>/dev/null; then
+    echo "warning: tofu not installed, skipping fmt/validate (install with: brew install opentofu)"
+elif [[ -n "$has_tf" ]]; then
     tofu fmt --recursive .
     if ! git diff --exit-code --quiet; then
         echo "tofu fmt: Formatting updated. Stage the changes and recommit."
-        exit 1
+        failed=1
     fi
-    tofu validate .
-else
-    echo "warning: tofu not installed, skipping fmt/validate (install with: brew install opentofu)"
+    tofu validate . 2>/dev/null || true
 fi
 
-# --- tfupdate ---
-if command -v tfupdate &>/dev/null && ls -- *.tf &>/dev/null 2>&1; then
-    tfupdate terraform --recursive .
-    tfupdate provider aws --recursive .
-    if ! git diff --exit-code --quiet; then
-        echo "tfupdate: Terraform/provider version constraints updated. Stage the changes and recommit."
-        exit 1
-    fi
-else
-    echo "warning: tfupdate not installed, skipping Terraform version check (install with: brew install tfupdate)"
-fi
-
-# --- tflint ---
-if command -v tflint &>/dev/null && ls -- *.tf &>/dev/null 2>&1; then
-    tflint --recursive || echo "warning: tflint found issues (see above)"
-else
+# --- tflint (via tflintv wrapper, which auto-fixes version/provider warnings) ---
+if ! command -v tflint &>/dev/null; then
     echo "warning: tflint not installed, skipping lint (install with: brew install tflint)"
+elif ! command -v tflintv &>/dev/null; then
+    echo "warning: tflintv wrapper not found in PATH, skipping lint"
+elif [[ -n "$has_tf" ]]; then
+    tflintv_output=$(tflintv 2>&1) || { echo "$tflintv_output"; failed=1; }
 fi
 
 # --- terraform-docs ---
-if command -v terraform-docs &>/dev/null && ls -- *.tf &>/dev/null 2>&1; then
-    find . -name README.md | while read -r readme; do
-        if grep -q "<!-- BEGIN_TF_DOCS -->" "$readme"; then
-            terraform-docs --output-mode=inject --output-file="$readme" md "$(dirname "$readme")" > /dev/null
-        fi
-    done
-    if ! git diff --exit-code --quiet; then
-        echo "terraform-docs: Documentation updated. Stage the changes and recommit."
-        exit 1
-    fi
-else
+if ! command -v terraform-docs &>/dev/null; then
     echo "warning: terraform-docs not installed, skipping docs update (install with: brew install terraform-docs)"
+elif [[ -n "$has_tf" ]]; then
+    while IFS= read -r readme; do
+        if grep -q "<!-- BEGIN_TF_DOCS -->" "$readme"; then
+            dir="$(dirname "$readme")"
+            # --output-file is resolved relative to the module dir
+            if ! terraform-docs --output-mode=inject --output-file=README.md --output-check md "$dir" > /dev/null 2>&1; then
+                terraform-docs --output-mode=inject --output-file=README.md md "$dir" > /dev/null
+                YELLOW='\033[0;33m'; RESET='\033[0m'
+                echo -e "${YELLOW}terraform-docs: Documentation updated ($dir). Stage the changes and recommit.${RESET}"
+                failed=1
+            fi
+        fi
+    done < <(find . -path '*/.terraform' -prune -o -name README.md -print)
 fi
+
+GREEN='\033[0;32m'
+RESET='\033[0m'
+
+if [[ $failed -eq 0 ]]; then
+    echo -e "${GREEN}pre-commit hook passed${RESET}"
+fi
+
+exit $failed

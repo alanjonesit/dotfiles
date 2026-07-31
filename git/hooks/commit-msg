@@ -7,10 +7,15 @@
 commit_msg=$(cat "$1")
 pattern='^(feat|fix|docs|style|refactor|perf|test|chore|ci|build|revert)(\(.+\))?(!)?: .+'
 
+RED='\033[0;31m'
+YELLOW='\033[0;33m'
+DIM='\033[2m'
+RESET='\033[0m'
+
 if ! echo "$commit_msg" | grep -qE "$pattern"; then
-    echo "error: commit message does not follow conventional commits format."
-    echo "expected: type(scope): description"
-    echo "types: feat, fix, docs, style, refactor, perf, test, chore, ci, build, revert"
-    echo "example: feat(auth): add login page"
+    echo -e "\n${RED}error: commit message does not follow conventional commits format.${RESET}"
+    echo -e "${YELLOW}expected:${RESET} type(scope): description"
+    echo -e "${YELLOW}types:${RESET}    feat, fix, docs, style, refactor, perf, test, chore, ci, build, revert"
+    echo -e "${DIM}example:  feat(auth): add login page${RESET}"
     exit 1
 fi

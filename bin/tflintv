@@ -1,0 +1,222 @@
+#!/usr/bin/env bash
+# tflintv — fix tflint terraform_required_version and terraform_required_providers warnings
+#
+# Usage: tflintv [tflint-output]
+#   If tflint output is passed via stdin or as an argument, only fixes detected issues.
+#   If run standalone, runs tflint itself and fixes any issues found.
+#
+# Exits 0 if everything is clean or fixes were auto-committed.
+# Exits 1 if files were modified and need to be staged and recommitted.
+
+set -euo pipefail
+
+# --- helpers -----------------------------------------------------------------
+
+_tf_dirs() {
+    find . -name "*.tf" -not -path "*/modules/*" | sed 's|/[^/]*$||' | sort -u
+}
+
+_terraform_version_constraint() {
+    local raw_version
+    raw_version=$(tofu version 2>/dev/null | head -1 | sed 's/OpenTofu v//')
+    echo "~> $(echo "$raw_version" | cut -d. -f1,2)"
+}
+
+# Known provider sources — avoids registry lookup for common providers
+declare -A KNOWN_PROVIDERS=(
+    [aws]="hashicorp/aws"
+    [postgresql]="cyrilgdn/postgresql"
+    [splunk]="splunk/splunk"
+    [signalfx]="splunk-terraform/signalfx"
+)
+
+# Resolve full source address for a provider short name.
+# Checks known list, then lock file, then queries the registry search endpoint.
+_provider_source() {
+    local name="$1"
+    local dir="$2"
+    local lock_file="$dir/.terraform.lock.hcl"
+
+    # Check known providers first
+    if [[ -n "${KNOWN_PROVIDERS[$name]+_}" ]]; then
+        echo "${KNOWN_PROVIDERS[$name]}"
+        return 0
+    fi
+
+    # Try lock file first
+    if [[ -f "$lock_file" ]]; then
+        local source
+        source=$(grep -o '"registry.terraform.io/[^"]*'"$name"'"' "$lock_file" | head -1 | tr -d '"' | sed 's|registry.terraform.io/||')
+        if [[ -n "$source" ]]; then
+            echo "$source"
+            return 0
+        fi
+    fi
+
+    # Query registry search
+    local result
+    result=$(curl -sf "https://registry.terraform.io/v1/providers?q=${name}&limit=1" \
+        | python3 -c "import sys,json; d=json.load(sys.stdin); p=d.get('providers',[]); print(p[0]['namespace']+'/'+p[0]['name']) if p else sys.exit(1)" 2>/dev/null) || return 1
+    echo "$result"
+}
+
+# Get version constraint for a provider. Checks lock file, then registry.
+_provider_version_constraint() {
+    local source="$1"
+    local dir="$2"
+    local lock_file="$dir/.terraform.lock.hcl"
+    local provider_version=""
+
+    if [[ -f "$lock_file" ]]; then
+        provider_version=$(grep -A5 "\"registry.terraform.io/${source}\"" "$lock_file" \
+            | grep 'version' | head -1 | sed 's/.*= *"\([^"]*\)".*/\1/')
+    fi
+
+    if [[ -z "$provider_version" ]]; then
+        provider_version=$(curl -sf "https://registry.terraform.io/v1/providers/${source}" \
+            | python3 -c "import sys,json; d=json.load(sys.stdin); print(d['version'])" 2>/dev/null) || true
+    fi
+
+    if [[ -z "$provider_version" ]]; then
+        return 1
+    fi
+
+    echo "~> $(echo "$provider_version" | cut -d. -f1,2)"
+}
+
+# --- fix required_version ----------------------------------------------------
+
+fix_required_version() {
+    local constraint
+    constraint=$(_terraform_version_constraint)
+
+    while IFS= read -r dir; do
+        local terraform_tf="$dir/terraform.tf"
+        if [[ -f "$terraform_tf" ]]; then
+            if ! grep -q "required_version" "$terraform_tf"; then
+                sed -i.bak 's/^terraform {/terraform {\n  required_version = "'"$constraint"'"/' "$terraform_tf"
+                rm -f "${terraform_tf}.bak"
+            fi
+        else
+            printf 'terraform {\n  required_version = "%s"\n}\n' "$constraint" > "$terraform_tf"
+            git add "$terraform_tf"
+        fi
+    done < <(_tf_dirs)
+}
+
+# --- fix required_providers --------------------------------------------------
+
+fix_required_providers() {
+    local providers=("$@")
+
+    while IFS= read -r dir; do
+        local terraform_tf="$dir/terraform.tf"
+
+        for name in "${providers[@]}"; do
+            local source constraint
+
+            if ! source=$(_provider_source "$name" "$dir"); then
+                continue
+            fi
+
+            if ! constraint=$(_provider_version_constraint "$source" "$dir"); then
+                continue
+            fi
+
+            local short_name="${source##*/}"
+
+            # Skip if already declared
+            if [[ -f "$terraform_tf" ]] && grep -q "source.*=.*\"${source}\"" "$terraform_tf"; then
+                continue
+            fi
+
+            if [[ -f "$terraform_tf" ]]; then
+                if grep -q "required_providers" "$terraform_tf"; then
+                    python3 - "$terraform_tf" "$short_name" "$source" "$constraint" <<'EOF'
+import sys
+path, short_name, source, constraint = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]
+with open(path) as f:
+    content = f.read()
+insert = f'    {short_name} = {{\n      source  = "{source}"\n      version = "{constraint}"\n    }}\n'
+content = content.replace('required_providers {', f'required_providers {{\n{insert}', 1)
+with open(path, 'w') as f:
+    f.write(content)
+EOF
+                elif grep -q "required_version" "$terraform_tf"; then
+                    python3 - "$terraform_tf" "$short_name" "$source" "$constraint" <<'EOF'
+import sys, re
+path, short_name, source, constraint = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]
+with open(path) as f:
+    content = f.read()
+block = f'\n\n  required_providers {{\n    {short_name} = {{\n      source  = "{source}"\n      version = "{constraint}"\n    }}\n  }}'
+content = re.sub(r'(  required_version\s*=\s*"[^"]*")', r'\1' + block, content, count=1)
+with open(path, 'w') as f:
+    f.write(content)
+EOF
+                else
+                    python3 - "$terraform_tf" "$short_name" "$source" "$constraint" <<'EOF'
+import sys
+path, short_name, source, constraint = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]
+with open(path) as f:
+    content = f.read()
+block = f'  required_providers {{\n    {short_name} = {{\n      source  = "{source}"\n      version = "{constraint}"\n    }}\n  }}\n'
+content = content.replace('terraform {', f'terraform {{\n{block}', 1)
+with open(path, 'w') as f:
+    f.write(content)
+EOF
+                fi
+            else
+                printf 'terraform {\n  required_providers {\n    %s = {\n      source  = "%s"\n      version = "%s"\n    }\n  }\n}\n' \
+                    "$short_name" "$source" "$constraint" > "$terraform_tf"
+                git add "$terraform_tf"
+            fi
+        done
+    done < <(_tf_dirs)
+}
+
+# --- main --------------------------------------------------------------------
+
+# Accept tflint output piped in or run tflint ourselves
+if [[ -p /dev/stdin ]]; then
+    tflint_output=$(cat)
+    tflint_exit=0
+else
+    tflint_output=$(tflint --recursive 2>&1) && tflint_exit=0 || tflint_exit=$?
+fi
+
+fixed=0
+created_files=()
+
+if echo "$tflint_output" | grep -q "terraform_required_version"; then
+    fix_required_version
+    fixed=1
+fi
+
+if echo "$tflint_output" | grep -q "terraform_required_providers"; then
+    # Extract unique provider names from tflint warnings
+    mapfile -t providers < <(echo "$tflint_output" \
+        | grep -o 'provider "[^"]*"' \
+        | sed 's/provider "//;s/"//' \
+        | sort -u)
+    fix_required_providers "${providers[@]}"
+    fixed=1
+fi
+
+if [[ $fixed -eq 1 ]]; then
+    mapfile -t created_files < <(git diff --cached --name-only --diff-filter=A | grep "terraform\.tf$")
+
+    if ! git diff --exit-code --quiet; then
+        YELLOW='\033[0;33m'; RESET='\033[0m'
+        echo -e "${YELLOW}tflint: files modified, stage and recommit${RESET}"
+        exit 1
+    fi
+
+    if [[ ${#created_files[@]} -gt 0 ]]; then
+        git commit --amend --no-edit -- "${created_files[@]}"
+        echo "tflint: fixed"
+    fi
+fi
+
+if [[ $tflint_exit -ne 0 ]] && [[ $fixed -eq 0 ]]; then
+    exit $tflint_exit
+fi
