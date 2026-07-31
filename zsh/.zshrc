@@ -11,7 +11,9 @@ fi
 
 export GPG_TTY=$(tty)                                            # For GPG commit signing
 export XDG_CONFIG_HOME=~/.config                                 # Standard config location
-export TERM=xterm-256color                                       # Proper color support
+# TERM is set by the terminal itself (Ghostty ships its own terminfo — italics,
+# undercurl, truecolor); don't override it here or those capabilities are lost.
+typeset -U path PATH                                             # Keep PATH entries unique (first wins)
 export PATH="/opt/homebrew/bin:/opt/homebrew/opt/curl/bin:$HOME/.local/bin:$PATH"  # Homebrew bin, curl & local bin
 export TERMINAL="ghostty"                                        # Set Ghostty as default terminal
 
@@ -124,7 +126,17 @@ source ${ZIM_HOME}/init.zsh
 fpath=($HOME/.docker/completions $fpath)
 
 autoload -Uz compinit
-compinit -d "${XDG_CACHE_HOME:-$HOME/.cache}/zsh/.zcompdump"
+# Rebuild the completion dump at most once a day; otherwise load it cached (-C
+# skips the security audit) to avoid ~180ms of compinit on every shell start.
+() {
+  local dump="${XDG_CACHE_HOME:-$HOME/.cache}/zsh/.zcompdump"
+  [[ -d ${dump:h} ]] || mkdir -p ${dump:h}   # ensure cache dir exists so the dump persists
+  if [[ -n $dump(#qN.mh+24) ]]; then
+    compinit -d "$dump"        # dump older than 24h: regenerate + audit
+  else
+    compinit -C -d "$dump"     # fresh dump: load cached, skip audit
+  fi
+}
 
 # ============================================================================
 # ZSH ZSTYLE (COMPLETION SYSTEM) - https://zsh.sourceforge.io/Doc/Release/Completion-System.html
@@ -184,7 +196,12 @@ source <(fzf --zsh)                                   # fzf: Fuzzy finder - http
 eval "$(zoxide init zsh)"                             # zoxide: Smart cd - https://github.com/ajeetdsouza/zoxide
 
 # VS Code shell integration - https://code.visualstudio.com/docs/terminal/shell-integration
-[[ "$TERM_PROGRAM" == "vscode" ]] && . "$(code --locate-shell-integration-path zsh)"
+# VS Code auto-injects integration when $VSCODE_INJECTION is set; only source it
+# manually as a fallback, to avoid loading it twice (extra prompt redraw + a
+# ~170ms `code` CLI spawn on every terminal).
+if [[ "$TERM_PROGRAM" == "vscode" && -z "$VSCODE_INJECTION" ]]; then
+  . "$(code --locate-shell-integration-path zsh)"
+fi
 
 # Load Powerlevel10k configuration
 # Upstream lean template is sourced first, then local overrides are applied on top.
@@ -224,7 +241,7 @@ alias cd="z"
 # Python
 alias python=python3
 
-export PATH=$PATH:/opt/homebrew/Cellar/openvpn/2.7.0/sbin
+export PATH=$PATH:/opt/homebrew/opt/openvpn/sbin
 
 
 # ============================================================================
